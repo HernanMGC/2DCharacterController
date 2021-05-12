@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class OneSidePlatform : MonoBehaviour
+public class OneWayPlatform : MonoBehaviour
 {
 
 }

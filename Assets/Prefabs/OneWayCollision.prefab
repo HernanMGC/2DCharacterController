@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 4908856319388994677}
   - component: {fileID: 6799713377924567294}
   m_Layer: 0
-  m_Name: OneSidedCollision
+  m_Name: OneWayCollision
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

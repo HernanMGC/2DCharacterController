@@ -402,7 +402,7 @@ public class PlayerController2D : MonoBehaviour
             topPositionR = leftHit.point.y;
 
             // Check if next movement would be passed the limits
-            if (leftHit.point.y - groundOffsetY < nextTopPosition && leftHit.transform.gameObject.GetComponent<OneSidePlatform>() == null) {
+            if (leftHit.point.y - groundOffsetY < nextTopPosition && leftHit.transform.gameObject.GetComponent<OneWayPlatform>() == null) {
                 isBumpedTopL = true;
 
             } else {
@@ -420,7 +420,7 @@ public class PlayerController2D : MonoBehaviour
             topPositionC = rightHit.point.y;
 
             // Check if next movement would be passed the limits
-            if (rightHit.point.y - groundOffsetY < nextTopPosition  && rightHit.transform.gameObject.GetComponent<OneSidePlatform>() == null) {
+            if (rightHit.point.y - groundOffsetY < nextTopPosition  && rightHit.transform.gameObject.GetComponent<OneWayPlatform>() == null) {
                 isBumpedTopR = true;
 
             } else {
@@ -438,7 +438,7 @@ public class PlayerController2D : MonoBehaviour
             topPositionL = centerHit.point.y;
 
             // Check if next movement would be passed the limits
-            if (centerHit.point.y - groundOffsetY < nextTopPosition  && centerHit.transform.gameObject.GetComponent<OneSidePlatform>() == null) {
+            if (centerHit.point.y - groundOffsetY < nextTopPosition  && centerHit.transform.gameObject.GetComponent<OneWayPlatform>() == null) {
                 isBumpedTopC = true;
 
             } else {
