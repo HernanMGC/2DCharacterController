@@ -5,13 +5,13 @@ This is a one-week non Unity-Physics base 2D Platformer Character Controller for
 - Only colliders and raycasting.
 - No overlap and repositioning.
 
-![image info](./Documentation/img/probing_raycasting.png)
+![Raycasting collision detection example](./Documentation/img/probing_raycasting.png)
 
 ## Scripts
-### Character - PlayerController2d.cs
+### Character - PlayerController2D.cs
 This script is in charge of the character movement (running, jumping and falling) and the collision detection.
 
-![image info](./Documentation/img/2dcharacter_publicvars.png)
+![2D Player Controller Public Vars](./Documentation/img/2dcharacter_publicvars.png)
 
 These are the public variables open for a game designer to tweak and their meaning in the game.
 - **maxWalkSpeed:** Maximum speed The character can walk.
@@ -42,7 +42,7 @@ If the Character detects a Game Object with One-way Platform component attached 
 ### Camera - FollowCamera.cs
 The camera implemented is a simple follow camera made for testing purporses.
 
-![image info](./Documentation/img/followcamera_publicvars.png)
+![Follow Camera Public Vars](./Documentation/img/followcamera_publicvars.png)
 
 These are the public variables open for a game designer to tweak and their meaning in the game.
 
