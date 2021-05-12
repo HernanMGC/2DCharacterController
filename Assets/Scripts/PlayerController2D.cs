@@ -114,7 +114,6 @@ public class PlayerController2D : MonoBehaviour
         
         UpdateCornerPosition(moveVector);
         TryToMove(moveVector);
-
     }
 
     public float GetInputDir() {
@@ -125,7 +124,6 @@ public class PlayerController2D : MonoBehaviour
     {
         inputDir = (Mathf.Abs(maxSpeed) > 0)? Mathf.Sign(maxSpeed - speed):0;
         movementDir = Mathf.Sign(maxSpeed - speed);
-
 
         if (speed == maxSpeed) {
             return speed;
@@ -140,15 +138,24 @@ public class PlayerController2D : MonoBehaviour
     private float GetCurrentSpeedY(float speed, float jumpInitialVelocity, float gravity)
     {
         if (isJumpButtonPressed && jumpCount < jumpMaxCount) {
+            Debug.Log("jumpCount ("+jumpCount+"/"+jumpMaxCount+")");
             isJumping = true;
             isGrounded = false;
+            isOnSlope = false;
             speed = jumpInitialVelocity - gravity * Time.deltaTime;
             jumpCount++;
 
         } else if (isGrounded) {
-            speed = 0.0f;
+            jumpCount = 0;
+            Debug.Log("!jumpCount ("+jumpCount+"/"+jumpMaxCount+")");
 
+
+            if (isGrounded && currentSpeedY <= 0.0f) {
+                speed = 0.0f;
+            }
         } else {
+            Debug.Log("WTD");
+
             speed = speed - gravity * Time.deltaTime;
         }
  
@@ -161,15 +168,15 @@ public class PlayerController2D : MonoBehaviour
         moveVector = ProbeSides(moveVector);
         moveVector = ProbeUpward(moveVector);
 
-        if (isGrounded) {
+        if (isGrounded || isOnSlope) {
             jumpCount = 0;
             isJumping = false;
-            currentSpeedY = 0.0f;
 
         // Prevents double jump
-        } else if (currentSpeedY < 0.0f && !isJumping && jumpCount == 0.0f && !allowDoubleJumpWhenFalling) {
+        } else if (currentSpeedY < 0.0f && !isJumping && jumpCount == 0 && !allowDoubleJumpWhenFalling) {
+            Debug.Log("!!jumpCount ("+jumpCount+"/"+jumpMaxCount+")");
+
             jumpCount = 1;
-            Debug.Log("OOJOOOO currentSpeedY = " + currentSpeedY );
         }
 
         transform.position = transform.position + new Vector3(moveVector.x, moveVector.y, 0.0f);
@@ -187,7 +194,6 @@ public class PlayerController2D : MonoBehaviour
             Debug.DrawRay(bottomLeftCorner, transform.TransformDirection(Vector3.down) * leftHit.distance, Color.red, debugLineLifetime);
 
             float leftHitAngle = Vector2.Angle(Vector2.up, new Vector2(leftHit.normal.x, leftHit.normal.y));
-            //Debug.Log("leftHitAngle = " + leftHitAngle + " maxSlopeAngle = " + maxSlopeAngle);
 
             if (leftHitAngle > 0.0f) {
                 isAboveSlopeL = true;
@@ -201,8 +207,8 @@ public class PlayerController2D : MonoBehaviour
                 isOnNonWalkableSlopeL = false;
             }
 
-            bottomPositionL = leftHit.point.y + ((isAboveSlope && !isOnNonWalkableSlope)?groundSlopeOffsetY:groundOffsetY);
-            if (bottomPositionL > nextBottomPosition) {
+            bottomPositionL = leftHit.point.y;
+            if (leftHit.point.y + groundOffsetY > nextBottomPosition || isOnSlope) {
                 isGroundedL = true;
 
             } else {
@@ -218,7 +224,6 @@ public class PlayerController2D : MonoBehaviour
             Debug.DrawRay(bottomRightCorner, transform.TransformDirection(Vector3.down) * rightHit.distance, Color.red, debugLineLifetime);
 
             float rightHitAngle = Vector2.Angle(Vector2.up, new Vector2(rightHit.normal.x, rightHit.normal.y));
-            //Debug.Log("rightHitAngle = " + rightHitAngle + " maxSlopeAngle = " + maxSlopeAngle);
 
             if (rightHitAngle > 0) {
                 isAboveSlopeR = true;
@@ -232,8 +237,8 @@ public class PlayerController2D : MonoBehaviour
                 isOnNonWalkableSlopeR = false;
             }
 
-            bottomPositionR = rightHit.point.y + ((isAboveSlope && !isOnNonWalkableSlope)?groundSlopeOffsetY:groundOffsetY);
-            if (bottomPositionR > nextBottomPosition) {
+            bottomPositionR = rightHit.point.y;
+            if (rightHit.point.y + groundOffsetY > nextBottomPosition || isOnSlope) {
                 isGroundedR = true;
 
             } else {
@@ -249,7 +254,6 @@ public class PlayerController2D : MonoBehaviour
             Debug.DrawRay(bottomCenterCorner, transform.TransformDirection(Vector3.down) * centerHit.distance, Color.red, debugLineLifetime);
 
             float centerHitAngle = Vector2.Angle(Vector2.up, new Vector2(centerHit.normal.x, centerHit.normal.y));
-            //Debug.Log("centerHitAngle = " + centerHitAngle + " maxSlopeAngle = " + maxSlopeAngle);
 
             if (centerHitAngle > 0) {
                 isAboveSlopeC = true;
@@ -263,8 +267,8 @@ public class PlayerController2D : MonoBehaviour
                 isOnNonWalkableSlopeC = false;
             }
 
-            bottomPositionC = centerHit.point.y + ((isAboveSlope && !isOnNonWalkableSlope)?groundSlopeOffsetY:groundOffsetY);
-            if (bottomPositionC > nextBottomPosition) {
+            bottomPositionC = centerHit.point.y;
+            if (centerHit.point.y + groundOffsetY > nextBottomPosition || isOnSlope) {
                 isGroundedC = true;
 
             } else {
@@ -275,38 +279,28 @@ public class PlayerController2D : MonoBehaviour
             isGroundedC = false;
         }
 
-        isGrounded = (isGroundedL || isGroundedR || isGroundedC) && currentSpeedY <= 0;
+        isGrounded = isGroundedL || isGroundedR || isGroundedC;
+        isOnSlope = isGrounded && isAboveSlope;
         isAboveSlope = (isAboveSlopeL && isAboveSlopeR)
             || (isAboveSlopeL && !isAboveSlopeR && bottomPositionL >= bottomPositionR)
             || (isAboveSlopeR && !isAboveSlopeL && bottomPositionR >= bottomPositionL);
         isOnNonWalkableSlope = isOnNonWalkableSlopeL || isOnNonWalkableSlopeR || isOnNonWalkableSlopeC;
-        isOnSlope = isGrounded && isAboveSlope;
 
-        if (isGrounded) {
-            currentSpeedY = 0.0f;
-        }
-
-        if (isAboveSlope && !isJumping) {
-        //if (isAboveSlope && !isJumping) {
-            currentSpeedY = 0.0f;
+        if (isOnSlope) {
 
             if (isAboveSlopeL && bottomPositionL - bottomPositionC > groundSlopeOffsetY) {
-                //Debug.Log("Jump SLOPE! 2");
                 nextBottomPosition = bottomPositionL;
 
             } else if (isAboveSlopeR && bottomPositionR - bottomPositionC > groundSlopeOffsetY) {
-                //Debug.Log("Jump SLOPE! 3");
                 nextBottomPosition = bottomPositionR;
                 
             } else {
-                //Debug.Log("Jump SLOPE! 4");
                 nextBottomPosition = bottomPositionC;
             }
 
             moveVector.y = nextBottomPosition - bottomCenterCorner.y + rayBottomOffsetY;
 
         } else {
-            //Debug.Log("Jump SLOPE! !!! isAboveSlope = "+isAboveSlope+" | isOnNonWalkableSlope = "+isOnNonWalkableSlope+" | isJumping = "+isJumping);
 
             nextBottomPosition = Mathf.Max(nextBottomPosition, bottomPositionL, bottomPositionR, bottomPositionC);
             moveVector.y = nextBottomPosition - bottomCenterCorner.y + rayBottomOffsetY;
@@ -408,7 +402,6 @@ public class PlayerController2D : MonoBehaviour
                 
                 sidePositionT = topHit.point.x - groundOffsetX * dir;
                 moveSign = Mathf.Sign(nextSidePosition - sidePositionT);
-                //Debug.Log("topHitAngle = " + topHitAngle);
                 if (moveSign == dir && topHitAngle > maxSlopeAngle) {
                     isBumpedSideT = true;
 
@@ -428,7 +421,6 @@ public class PlayerController2D : MonoBehaviour
                 
                 sidePositionB = bottomHit.point.x - groundOffsetX * dir;
                 moveSign = Mathf.Sign(nextSidePosition - sidePositionB);
-                //Debug.Log("bottomHitAngle = " + bottomHitAngle);
                 if (moveSign == dir && bottomHitAngle > maxSlopeAngle) {
                     isBumpedSideB = true;
 
@@ -448,7 +440,6 @@ public class PlayerController2D : MonoBehaviour
                 
                 sidePositionC = centerHit.point.x - groundOffsetX * dir;
                 moveSign = Mathf.Sign(nextSidePosition - sidePositionC);
-                //Debug.Log("centerHitAngle = " + centerHitAngle);
                 if (moveSign == dir && centerHitAngle > maxSlopeAngle) {
                     isBumpedSideC = true;
 
@@ -463,11 +454,9 @@ public class PlayerController2D : MonoBehaviour
             isBumpedSide = (isBumpedSideT || isBumpedSideB || isBumpedSideC);
 
             if (isBumpedSide) {
-                Debug.Log("!isBumpedSide");
                 currentSpeedX = 0;
 
                 if (!isOnNonWalkableSlope) {
-                    Debug.Log("!isOnNonWalkableSlope");
                     if (dir > 0) {
                         nextSidePosition = Mathf.Min(nextSidePosition, sidePositionT, sidePositionB, sidePositionC);
 
@@ -478,7 +467,6 @@ public class PlayerController2D : MonoBehaviour
                     nextSidePosition = sideCenterCorner.x + raySideOffsetX * dir;
                 }
             } else {
-                Debug.Log("WTF!");
             }
 
             moveVector.x = nextSidePosition - sideCenterCorner.x - raySideOffsetX * dir;
