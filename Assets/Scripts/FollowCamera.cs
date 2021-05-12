@@ -12,7 +12,7 @@ public class FollowCamera : MonoBehaviour
     {		
     		float dir = 1;
     		if (target.gameObject.GetComponent<PlayerController2D>() != null) {
-    		//	dir = target.gameObject.GetComponent<PlayerController2D>().GetMovementDir();
+    		//	dir = target.gameObject.GetComponent<PlayerController2D>().GeInputDir();
     		}
 
     		Vector3 targetPosition = target.transform.position + new Vector3(cameraOffset.x * dir, cameraOffset.y, 0);
