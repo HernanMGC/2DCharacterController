@@ -10,12 +10,7 @@ public class FollowCamera : MonoBehaviour
 
     void LateUpdate()
     {		
-    		float dir = 1;
-    		if (target.gameObject.GetComponent<PlayerController2D>() != null) {
-    		//	dir = target.gameObject.GetComponent<PlayerController2D>().GeInputDir();
-    		}
-
-    		Vector3 targetPosition = target.transform.position + new Vector3(cameraOffset.x * dir, cameraOffset.y, 0);
+    		Vector3 targetPosition = target.transform.position + new Vector3(cameraOffset.x, cameraOffset.y, 0);
     		Vector3 currentPosition = Vector3.Lerp(transform.position, targetPosition, lag * Time.deltaTime);
     		transform.position = new Vector3(currentPosition.x,currentPosition.y, transform.position.z);
 
